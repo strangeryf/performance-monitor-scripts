@@ -1,12 +1,14 @@
 #! /bin/bash
-if [ $# -lt 1 ]; then
-  echo "usage $0 pid"
-  exit
-fi
+process=gogs
+pid=`ps aux|grep $process|grep -v grep|awk '{print $2}'`
+cmd=`ps aux|grep $process|grep -v grep|awk '{print $11}'`
 
-echo pcpu,vsz,rss > perf.log
+echo $cmd > perf.log
+echo time,pcpu,vsz,rss >> perf.log
 
 while true; do
-  ps -o pcpu,vsz,rss -p $1 | grep -v CPU | sed -r 's/ *([0-9.]+) +([0-9]+) +([0-9]+)/\1,\2,\3/' >> perf.log
+  date=`date "+%Y-%m-%d %H:%M:%S"`
+  metrics=`ps -o pcpu,vsz,rss -p $pid|grep -v CPU|sed -r 's/ *([0-9.]+) +([0-9]+) +([0-9]+)/\1,\2,\3/'`
+  echo $date,$metrics >> perf.log
   sleep 1
 done
